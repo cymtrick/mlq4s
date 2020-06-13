@@ -26,13 +26,13 @@ from util import util
 from util.VisualizeDataset import VisualizeDataset
 
 # Read the result from the previous chapter, and make sure the index is of the type datetime.
-DATA_PATH = Path('./intermediate_datafiles/')
-DATASET_FNAME = 'chapter5_result.csv'
+DATA_PATH = Path('../')
+DATASET_FNAME = 'chapter5_result_alt.csv'
 RESULT_FNAME = 'chapter7_classification_result.csv'
 EXPORT_TREE_PATH = Path('./figures/crowdsignals_ch7_classification/')
 
 # Next, we declare the parameters we'll use in the algorithms.
-N_FORWARD_SELECTION = 50
+N_FORWARD_SELECTION = 10
 
 try:
     dataset = pd.read_csv(DATA_PATH / DATASET_FNAME, index_col=0)
@@ -60,9 +60,8 @@ print('Test set length is: ', len(test_X.index))
 
 # Select subsets of the features that we will consider:
 
-basic_features = ['acc_phone_x','acc_phone_y','acc_phone_z','acc_watch_x','acc_watch_y','acc_watch_z','gyr_phone_x','gyr_phone_y','gyr_phone_z','gyr_watch_x','gyr_watch_y','gyr_watch_z',
-                  'hr_watch_rate', 'light_phone_lux','mag_phone_x','mag_phone_y','mag_phone_z','mag_watch_x','mag_watch_y','mag_watch_z','press_phone_pressure']
-pca_features = ['pca_1','pca_2','pca_3','pca_4','pca_5','pca_6','pca_7']
+basic_features = ['acc_phone_x','acc_phone_y','acc_phone_z','gyr_phone_x','gyr_phone_y','gyr_phone_z','light_phone_value','magnet_phone_x','magnet_phone_y','magnet_phone_z']
+pca_features = ['pca_1','pca_2','pca_3','pca_4','pca_5','pca_6']
 time_features = [name for name in dataset.columns if '_temp_' in name]
 freq_features = [name for name in dataset.columns if (('_freq' in name) or ('_pse' in name))]
 print('#basic features: ', len(basic_features))
@@ -78,22 +77,21 @@ features_after_chapter_5 = list(set().union(basic_features, pca_features, time_f
 
 # First, let us consider the performance over a selection of features:
 
-fs = FeatureSelectionClassification()
+# fs = FeatureSelectionClassification()
+#
+# features, ordered_features, ordered_scores = fs.forward_selection(N_FORWARD_SELECTION,
+#                                                                   train_X[features_after_chapter_5], train_y)
+# print(ordered_scores)
+# print(ordered_features)
 
-features, ordered_features, ordered_scores = fs.forward_selection(N_FORWARD_SELECTION,
-                                                                  train_X[features_after_chapter_5], train_y)
-print(ordered_scores)
-print(ordered_features)
-
-DataViz.plot_xy(x=[range(1, N_FORWARD_SELECTION+1)], y=[ordered_scores],
-                xlabel='number of features', ylabel='accuracy')
+# DataViz.plot_xy(x=[range(1, N_FORWARD_SELECTION+1)], y=[ordered_scores],
+#                 xlabel='number of features', ylabel='accuracy')
 
 # Based on the plot we select the top 10 features (note: slightly different compared to Python 2, we use
 # those feartures here).
 
-selected_features = ['acc_phone_y_freq_0.0_Hz_ws_40', 'press_phone_pressure_temp_mean_ws_120', 'gyr_phone_x_temp_std_ws_120',
-                     'mag_watch_y_pse', 'mag_phone_z_max_freq', 'gyr_watch_y_freq_weighted', 'gyr_phone_y_freq_1.0_Hz_ws_40',
-                     'acc_phone_x_freq_1.9_Hz_ws_40', 'mag_watch_z_freq_0.9_Hz_ws_40', 'acc_watch_y_freq_0.5_Hz_ws_40']
+selected_features = ['acc_phone_z_temp_mean_ws_4', 'pca_2_temp_std_ws_4', 'pca_1_temp_mean_ws_4', 'pca_3_temp_std_ws_4', 'acc_phone_x_temp_mean_ws_4', 'pca_5_temp_mean_ws_4', 'gyr_phone_y_temp_mean_ws_4', 'pca_2_temp_mean_ws_4', 'acc_phone_y_pse', 'pca_2']
+
 
 # Let us first study the impact of regularization and model complexity: does regularization prevent overfitting?
 
@@ -107,45 +105,45 @@ performance_test = []
 # We repeat the experiment a number of times to get a bit more robust data as the initialization of the NN is random.
 N_REPEATS_NN = 20
 
-for reg_param in reg_parameters:
-    performance_tr = 0
-    performance_te = 0
-    for i in range(0, N_REPEATS_NN):
+# for reg_param in reg_parameters:
+#     performance_tr = 0
+#     performance_te = 0
+#     for i in range(0, N_REPEATS_NN):
+#
+#         class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.feedforward_neural_network(
+#             train_X, train_y,
+#             test_X, hidden_layer_sizes=(250, ), alpha=reg_param, max_iter=500,
+#             gridsearch=False
+#         )
+#
+#         performance_tr += eval.accuracy(train_y, class_train_y)
+#         performance_te += eval.accuracy(test_y, class_test_y)
+#     performance_training.append(performance_tr/N_REPEATS_NN)
+#     performance_test.append(performance_te/N_REPEATS_NN)
 
-        class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.feedforward_neural_network(
-            train_X, train_y,
-            test_X, hidden_layer_sizes=(250, ), alpha=reg_param, max_iter=500,
-            gridsearch=False
-        )
-
-        performance_tr += eval.accuracy(train_y, class_train_y)
-        performance_te += eval.accuracy(test_y, class_test_y)
-    performance_training.append(performance_tr/N_REPEATS_NN)
-    performance_test.append(performance_te/N_REPEATS_NN)
-
-DataViz.plot_xy(x=[reg_parameters, reg_parameters], y=[performance_training, performance_test], method='semilogx',
-                xlabel='regularization parameter value', ylabel='accuracy', ylim=[0.95, 1.01],
-                names=['training', 'test'], line_styles=['r-', 'b:'])
+# DataViz.plot_xy(x=[reg_parameters, reg_parameters], y=[performance_training, performance_test], method='semilogx',
+#                 xlabel='regularization parameter value', ylabel='accuracy', ylim=[0.95, 1.01],
+#                 names=['training', 'test'], line_styles=['r-', 'b:'])
 
 # Second, let us consider the influence of certain parameter settings for the tree model. (very related to the
 # regularization) and study the impact on performance.
 
-leaf_settings = [1,2,5,10]
-performance_training = []
-performance_test = []
-
-for no_points_leaf in leaf_settings:
-
-    class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.decision_tree(
-        train_X[selected_features], train_y, test_X[selected_features], min_samples_leaf=no_points_leaf,
-        gridsearch=False, print_model_details=False)
-
-    performance_training.append(eval.accuracy(train_y, class_train_y))
-    performance_test.append(eval.accuracy(test_y, class_test_y))
-
-DataViz.plot_xy(x=[leaf_settings, leaf_settings], y=[performance_training, performance_test],
-                xlabel='minimum number of points per leaf', ylabel='accuracy',
-                names=['training', 'test'], line_styles=['r-', 'b:'])
+# leaf_settings = [1,2,5,10]
+# performance_training = []
+# performance_test = []
+#
+# for no_points_leaf in leaf_settings:
+#
+#     class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.decision_tree(
+#         train_X[selected_features], train_y, test_X[selected_features], min_samples_leaf=no_points_leaf,
+#         gridsearch=False, print_model_details=False)
+#
+#     performance_training.append(eval.accuracy(train_y, class_train_y))
+#     performance_test.append(eval.accuracy(test_y, class_test_y))
+#
+# DataViz.plot_xy(x=[leaf_settings, leaf_settings], y=[performance_training, performance_test],
+#                 xlabel='minimum number of points per leaf', ylabel='accuracy',
+#                 names=['training', 'test'], line_styles=['r-', 'b:'])
 
 # So yes, it is important :) Therefore we perform grid searches over the most important parameters, and do so by means
 # of cross validation upon the training set.
@@ -161,7 +159,7 @@ for i in range(0, len(possible_feature_sets)):
     selected_test_X = test_X[possible_feature_sets[i]]
 
     # First we run our non deterministic classifiers a number of times to average their score.
-
+    print("test1")
     performance_tr_nn = 0
     performance_tr_rf = 0
     performance_tr_svm = 0
@@ -187,7 +185,7 @@ for i in range(0, len(possible_feature_sets)):
         )
         performance_tr_svm += eval.accuracy(train_y, class_train_y)
         performance_te_svm += eval.accuracy(test_y, class_test_y)
-
+        print("test2")
 
     overall_performance_tr_nn = performance_tr_nn/N_KCV_REPEATS
     overall_performance_te_nn = performance_te_nn/N_KCV_REPEATS

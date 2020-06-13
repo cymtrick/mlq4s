@@ -23,9 +23,9 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 
 # As usual, we set our program constants, read the input file and initialize a visualization object.
-DATA_PATH = Path('./intermediate_datafiles/')
-DATASET_FNAME = sys.argv[1] if len(sys.argv) > 1 else 'chapter4_result.csv'
-RESULT_FNAME = sys.argv[2] if len(sys.argv) > 2 else 'chapter5_result.csv'
+DATA_PATH = Path('./')
+DATASET_FNAME = sys.argv[1] if len(sys.argv) > 1 else 'chapter4_result_own.csv'
+RESULT_FNAME = sys.argv[2] if len(sys.argv) > 2 else 'chapter5_result_acc.csv'
 
 try:
     dataset = pd.read_csv(DATA_PATH / DATASET_FNAME, index_col=0)
@@ -57,10 +57,8 @@ DataViz.plot_xy(x=[k_values], y=[silhouette_values], xlabel='k', ylabel='silhoue
                 ylim=[0,1], line_styles=['b-'])
 
 # And run the knn with the highest silhouette score
+k = 3
 
-# k = 6 # todo: replaced with np.argmax call over silhouette scores
-k = k_values[np.argmax(silhouette_values)]
-print(f'Highest K-Means silhouette score: k = {k}')
 
 dataset_knn = clusteringNH.k_means_over_instances(copy.deepcopy(dataset), ['acc_phone_x', 'acc_phone_y', 'acc_phone_z'], k, 'default', 50, 50)
 DataViz.plot_clusters_3d(dataset_knn, ['acc_phone_x', 'acc_phone_y', 'acc_phone_z'], 'cluster', ['label'])
@@ -86,7 +84,7 @@ DataViz.plot_xy(x=[k_values], y=[silhouette_values], xlabel='k', ylabel='silhoue
 
 # And run k medoids with the highest silhouette score
 
-# k = 6 # todo: replaced with np.argmax call over silhouette scores
+# k = 6
 k = k_values[np.argmax(silhouette_values)]
 print(f'Highest K-Medoids silhouette score: k = {k}')
 

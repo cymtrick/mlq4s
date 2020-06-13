@@ -25,8 +25,8 @@ from Chapter7.FeatureSelection import FeatureSelectionRegression
 DataViz = VisualizeDataset(__file__)
 
 # Read the result from the previous chapter, and make sure the index is of the type datetime.
-DATA_PATH = Path('./intermediate_datafiles/')
-DATASET_FNAME = 'chapter5_result.csv'
+DATA_PATH = Path('./')
+DATASET_FNAME = 'chapter5_result_acc.csv'
 EXPORT_TREE_PATH = Path('figures/example_graphs/Chapter7/')
 
 try:
@@ -51,10 +51,8 @@ print('Test set length is: ', len(test_X.index))
 
 # Select subsets of the features that we will consider:
 
-basic_features = ['acc_phone_x','acc_phone_y','acc_phone_z','acc_watch_x','acc_watch_y','acc_watch_z','gyr_phone_x','gyr_phone_y','gyr_phone_z','gyr_watch_x','gyr_watch_y','gyr_watch_z',
-                  'labelOnTable','labelSitting','labelWashingHands','labelWalking','labelStanding','labelDriving','labelEating','labelRunning',
-                  'light_phone_lux','mag_phone_x','mag_phone_y','mag_phone_z','mag_watch_x','mag_watch_y','mag_watch_z','press_phone_pressure']
-pca_features = ['pca_1','pca_2','pca_3','pca_4','pca_5','pca_6','pca_7']
+basic_features = ['acc_phone_x','acc_phone_y','acc_phone_z','gyr_phone_x','gyr_phone_y','gyr_phone_z','table','sit','walk','standing','light_phone_value','mag_phone_x','mag_phone_y','mag_phone_z']
+pca_features = ['pca_1','pca_2','pca_3','pca_4','pca_5','pca_6']
 time_features = [name for name in dataset.columns if ('temp_' in name and not 'hr_watch' in name)]
 freq_features = [name for name in dataset.columns if (('_freq' in name) or ('_pse' in name))]
 print('#basic features: ', len(basic_features))
